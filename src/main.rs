@@ -1,7 +1,9 @@
-// Standard stuff
-use std::string::String; 
-
-// FLTK UI framework
+use std::string::String;
+use std::vec::Vec;
+use std::fs::File;
+use std::io::BufReader;
+use serde::{ Deserialize, Serialize };
+use clap::Parser;
 use fltk::{ app, draw, prelude::* };
 use fltk::enums::{ Color, Align, Font, FrameType };
 use fltk::window::Window;
@@ -9,47 +11,73 @@ use fltk::group::Flex;
 use fltk::widget::Widget;
 
 
-// Local crates
-// Configuration
-mod config;
+/// Shrots
+#[derive(Parser, Debug)]
+struct Args {
+    /// The JSON configuration file
+    #[arg(short, long)]
+    config: String,
+}
 
 
-/// Creates a shortcut block
-/// 
-/// # Arguments
-///
-/// * `program`     - A string of the program name
-/// * `shortcuts`   - An entry type of all shortcuts for the program
-/// * `config`      - The configuration options object
-/// 
-/// Returns a `Widget` object
-fn draw_block(program: String, shortcuts: config::Entry, config: &config::Config) -> Widget {
-    // Create a mutable widget
-    // Value that will be returned
+#[derive(Debug, Serialize, Deserialize)]
+struct Config {
+    width: i32,
+    height: i32,
+    opacity: f64,
+    border_size: i32,
+    heading_size: i32,
+    shrot_size: i32,
+    bg_col: String,
+    fg_col: String,
+    pr_col: String,
+    sh_col: String,
+    br_col: String,
+    ab_col: String,
+    columns: Vec<Vec<Block>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct Block {
+    title: String,
+    rel_size: f64,
+    shrots: Vec<Entry>
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct Entry {
+    bind: String,
+    about: String,
+}
+
+
+fn draw_block(block: Block, config: &Config, rel_y: i32, rel_h: i32) -> Widget {
     let mut widget = Widget::default();
 
-    // Padding values in pixels
     let padding_x: i32 = 8;
     let padding_y: i32 = 0;
 
-    // Get configuration from borrowed config object
-    let bg_color = config.colors.background;
-    let fg_color = config.colors.foreground;
-    let sh_color = config.colors.shrot;
-    let ab_color = config.colors.about;
+    let bg_color = rgb(&config.bg_col);
+    let fg_color = rgb(&config.fg_col);
+    let sh_color = rgb(&config.sh_col);
+    let ab_color = rgb(&config.ab_col);
 
     // Sets the custom draw method
+    // For the widget
     widget.draw(move |w| {
-        // Create a frame with a background color
-        draw::draw_box(FrameType::FlatBox, w.x(), w.y(), w.w(), w.h(), Color::from_u32(bg_color));
+        // Set position & size
+        w.set_pos(w.x(), rel_y);
+        w.set_size(w.w(), rel_h);
+
+        draw::draw_box(FrameType::FlatBox, w.x(), w.y(), w.w(), w.h(), bg_color);
         
         // Calculate the drawed header size
         draw::set_font(Font::HelveticaBold, 24);
-        let (_w_header, h_header) = draw::measure(&program, false);
+        let (_w_header, h_header) = draw::measure(&block.title, false);
         
         // Draw the header
-        draw::set_draw_color(Color::from_u32(fg_color));
-        draw::draw_text2(&program,
+        draw::set_draw_color(fg_color);
+        draw::draw_text2(&block.title,
                          w.x() + padding_x,
                          w.y() + padding_y,
                          w.w(), w.h(),
@@ -57,43 +85,41 @@ fn draw_block(program: String, shortcuts: config::Entry, config: &config::Config
 
         // Calculate the current line coordinate
         let mut line_y = padding_y + h_header;
-        
 
         // Initialize variables to find the maximum shortcut size
         let mut max_len: i32 = 0;
         let mut max_shortcut: String = String::new();
+
         //
         // Find the biggest shortcut length
         // Used to calculate the about text's offset
         //
-        for shortcut in &shortcuts {
+        for shortcut in &block.shrots {
             // Get shortcut text and length
-            let s = shortcut["bind"].clone();
+            let s = &shortcut.bind;
             let len = s.len() as i32;
             // Check if length is greater than current maximum
             if len > max_len {
                 // If so asign the length and shortcut
                 max_len = len;
-                max_shortcut = s;
+                max_shortcut = s.to_string();
             }
         }
-        
 
         // Calculate the padding for the about section
         // It is equal to the sum of the maximum shortcut width and spacing
         draw::set_font(Font::HelveticaBold, 12);
         let padding_about: i32 = draw::width2(&max_shortcut.as_str(), max_len).ceil() as i32 + 32;
 
-
         // Draw shortcuts and abouts
-        for shortcut in &shortcuts {
+        for shortcut in &block.shrots {
             //
             // TODO: Implement error parsing
             //
 
             // Draw the shortcut text
-            draw::set_draw_color(Color::from_u32(sh_color));
-            draw::draw_text2(&shortcut["bind"],
+            draw::set_draw_color(sh_color);
+            draw::draw_text2(&shortcut.bind,
                              w.x() + padding_x,
                              w.y() + line_y,
                              w.w(), w.h(),
@@ -101,10 +127,10 @@ fn draw_block(program: String, shortcuts: config::Entry, config: &config::Config
 
             // Get the about texts height
             // It is assumend that shortcuts do not contain newlines
-            let (_w_about, h_about) = draw::measure(&shortcut["about"], false);
+            let (_w_about, h_about) = draw::measure(&shortcut.about, false);
             // Draw the about text
-            draw::set_draw_color(Color::from_u32(ab_color));
-            draw::draw_text2(&shortcut["about"],
+            draw::set_draw_color(ab_color);
+            draw::draw_text2(&shortcut.about,
                              w.x() + padding_x + padding_about,
                              w.y() + line_y,
                              w.w(), w.h(),
@@ -120,130 +146,81 @@ fn draw_block(program: String, shortcuts: config::Entry, config: &config::Config
 }
 
 
-/// Creates an empty block widget
-/// Used if there are more columns than widgets
-/// 
-/// # Arguments
-///
-/// * `config`  - The configuration options object
-/// 
-/// Returns a `Widget` object
-fn draw_empty_block(config: &config::Config) -> Widget {
-    // Create a mutable widget
-    // Value that will be returned
-    let mut widget = Widget::default();
-    
-    // Get the background color from borrowed config
-    let bg_color = config.colors.background;
-
-    // Sets the custom draw method
-    widget.draw(move |w| {
-        // Create a frame with a background color
-        draw::draw_box(FrameType::FlatBox,
-                       w.x(), w.y(),
-                       w.w(), w.h(),
-                       Color::from_u32(bg_color));
-    });
-
-    // Return the widget
-    return widget;
+fn read_json_config(path: String) -> Config {
+    let file = File::open(path).unwrap();
+    let buf_reader = BufReader::new(file);
+    serde_json::from_reader(buf_reader).unwrap() 
 }
 
 
-/// The application's entrypoint
+fn rgb(hex_str: &str) -> Color {
+    let hex_trim = hex_str.trim_start_matches("#");
+    let parsed = u32::from_str_radix(hex_trim, 16).unwrap();
+    Color::from_u32(parsed)
+}
+
+
 fn main() {
-    // Create the application
+    let args = Args::parse(); 
+
+    let config = read_json_config(args.config);
+    
     let app = app::App::default();
-
-    let config = config::get_config();
-
-    // Set width and height variables from the config
-    let width = config.general.width;
-    let height = config.general.height;
-
 
     // Create the application's window
     let mut window = Window::default()
         .with_pos(0, 0)
-        .with_size(width, height);
+        .with_size(config.width, config.height);
     window.set_border(false);
     window.make_resizable(false);
-    window.set_color(Color::from_u32(config.colors.border));
-    
+    window.set_color(rgb(&config.br_col));
 
     // Create flexbox on the X axis
-    let mut flexbox_x = Flex::default_fill()
-        .row();
+    let mut flexbox_x = Flex::default_fill().row();
 
-    // Set the margin & padding to match the configuration
-    flexbox_x.set_margin(config.general.border);
-    flexbox_x.set_pad(config.general.border);
+    // Since the window is of border color
+    // Margin & padding must be of border size
+    flexbox_x.set_margin(config.border_size);
+    flexbox_x.set_pad(config.border_size);
     
-    
-    // Get the column amount and all of the shortcuts
-    let mut widgets = config.shrots.len();
-    let mut shrots = config.shrots.clone();
-    
-    // Calculate the total amount of rows needed
-    // Depends on the widgets needed and the column amount
-    let rows = (widgets as f64 / config.general.columns as f64).ceil() as i32;
-    
+    // Variables for drawing
+    let mut rel_y;
+    let mut rel_h;
+    let mut count;
+    let mut amount;
 
-    //
-    // Loop over the amount of columns
-    // Create a flexbox on the Y axis
-    //
-    for _ in 0..config.general.columns {
-        // Create a flexbox on the Y axis
-        let mut flexbox_y = Flex::default_fill()
-            .column();
+    // Loop over columns & draw all blocks
+    for column in &config.columns {
+        rel_y = 0;
+        count = 0;
+        amount = column.len();
 
-        // Set margin & padding
-        // The padding matches the configuration
-        flexbox_y.set_margin(0);
-        flexbox_y.set_pad(config.general.border);
+        let flexbox_y = Flex::default_fill().column();
 
-        // Check if all widgets have been created
-        // If so create an empty widget and break the loop
-        if widgets == 0 {
-            draw_empty_block(&config);
-            break;
-        }
-
-        //
-        // Loop over the amount of rows
-        // Fill the rows with shortcut widget blocks
-        //
-        for _ in 0..rows {
-            // Check if all widgets have been created
-            // If so break the loop
-            if widgets == 0 {
-                break;
+        for block in column {
+            rel_y += config.border_size;
+            
+            // If this is the last block
+            // Account for the final border size
+            count += 1;
+            if count == amount {
+                rel_h = (block.rel_size * config.height as f64) as i32;
+                rel_h -= config.border_size * 2;
+            } else {
+                rel_h = (block.rel_size * config.height as f64) as i32;
+                rel_h -= config.border_size;
             }
             
-            // Pop a shrot of the BTreeMap
-            // Ensures that all widgets are displayed once in the same order
-            let (program, shortcuts) = shrots.pop_first().unwrap();
-            // Create the widget
-            draw_block(program, shortcuts, &config);
-            // Decrement widgets
-            widgets -= 1;
-        } 
-        
-        // Close the Y flexbox for this column
+            draw_block(block.clone(), &config, rel_y, rel_h);
+            rel_y += rel_h;
+        }
+
         flexbox_y.end();
-    }
-    
-    // Close the X flexbox
+    } 
     flexbox_x.end();
 
-    //
-    // Finish the window setup
-    // Set the opacity from the config
-    //
     window.end();
     window.show();
-    window.set_opacity(config.general.opacity);
+    window.set_opacity(config.opacity);
     app.run().unwrap();
-
 }

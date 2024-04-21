@@ -1,0 +1,126 @@
+{
+    "width": 1800,
+    "height": 1000,
+    "opacity": 0.8,
+    "border_size": 2,
+    "heading_size": 24,
+    "shrot_size": 12,
+    "bg_col": "#222222",
+    "fg_col": "#FFFFFF",
+    "pr_col": "#64DBFF",
+    "sh_col": "#64DBFF",
+    "br_col": "#64DBFF",
+    "ab_col": "#F1F1F1",
+    "columns": [
+        [{
+            "title": "Vimium",
+            "rel_size": 0.4, 
+            "shrots": [
+                {"bind": "h, j, k, l", "about": "Move left, down, up, right  around"},
+                {"bind": "J, K", "about": "Move left / right between tabs"},
+                {"bind": "H, L", "about": "Move back / forward in history"},
+                {"bind": "gg", "about": "Jump to top"},
+                {"bind": "G", "about": "Jump to bottom"},
+                {"bind": "o", "about": "Open search"},
+                {"bind": "O", "about": "Open search, for new tab"},
+                {"bind": "t", "about": "Create new tab"},
+                {"bind": "x", "about": "Close a tab"},
+                {"bind": "/", "about": "Search in the page"},
+                {"bind": "f", "about": "Show links to open"},
+                {"bind": "F", "about": "Show links to open, for new tab"},
+                {"bind": "r", "about": "Reload the page"},
+                {"bind": "u, d", "about": "Up / down half a page"},
+                {"bind": "<, >", "about": "Move tab left / right"}
+            ]
+        },{
+            "title": "I3",
+            "rel_size": 0.4, 
+            "shrots": [
+                {"bind": "WIN + d", "about": "Open Drun"},
+                {"bind": "WIN + D", "about": "Open run"},
+                {"bind": "WIN + 1, 2, 3", "about": "Switch panes"},
+                {"bind": "WIN + SHIFT + 1, 2, 3", "about": "Move panes"},
+                {"bind": "WIN + SHIFT + ARROW", "about": "Move panes"},
+                {"bind": "WIN + R", "about": "Reload I3 config"},
+                {"bind": "WIN + S", "about": "Run flameshot"},
+                {"bind": "WIN + A", "about": "Run shrots"}
+            ]
+        },{
+            "title": "Ranger",
+            "rel_size": 0.2, 
+            "shrots": [
+                {"bind": "CTRL + d", "about": "Drag & Drop"},
+                {"bind": "V", "about": "Enter visual mode (Selects all files)"},
+                {"bind": "uV", "about": "Unselects a file (Visual mode)"}
+            ]
+        }],[{
+            "title": "Neovim",
+            "rel_size": 0.4, 
+            "shrots": [
+                {"bind": "h, j, k, l", "about": "Move around"},
+                {"bind": "w, b", "about": "Move forwards and backwards a word"},
+                {"bind": "gg, G", "about": "Jump to top / bottom"},
+                {"bind": "CTRL + f, b", "about": "Half page forward / backward"},
+                {"bind": "V", "about": "Visual select a line"},
+                {"bind": "x", "about": "Delete a character"},
+                {"bind": "dw, db", "about": "Delete a word forward & backward"},
+                {"bind": "d0, d$", "about": "Delete until end, start of line"},
+                {"bind": "di + CHR", "about": "Delete between a character"},
+                {"bind": "yi + CHR", "about": "Copy between a character"},
+                {"bind": "CTRL + h", "about": "Search and replace"},
+                {"bind": "CTRL + H", "about": "Search and replace in selection"},
+                {"bind": "CTRL + l", "about": "Clear search highlight"},
+                {"bind": "CTRL + 0", "about": "Prefix for running normal mode commands in insert mode"},
+                {"bind": "CTRL + w + h, j, k, l", "about": "Navigate panes"},
+                {"bind": "CTRL + w + H, J, K, L", "about": "Move panes"},
+                {"bind": "CTRL + w + =", "about": "Resize all panes to equal size"},
+                {"bind": "CTRL + w + s", "about": "Split horizontal"},
+                {"bind": "CTRL + w + v", "about": "Split vertical"}
+            ]
+        },
+        {
+            "title": "Neovim Plugins",
+            "rel_size": 0.6, 
+            "shrots": [
+                {"bind": "s", "about": "surround prefix"},
+                {"bind": "ctrl + t", "about": "open nvimtree"},
+                {"bind": "ctlr + n", "about": "open multi-cursor"},
+                {"bind": "ctrl + arrow", "about": "multi-cursor select"},
+                {"bind": "\\ + ff", "about": "search file (telescope)"},
+                {"bind": "\\ + fb", "about": "search buffer (telescope)"},
+                {"bind": "\\ + fh", "about": "search help tags (telescope)"},
+                {"bind": "\\ + hh", "about": "open selection (harpoon)"},
+                {"bind": "\\ + ha", "about": "add buffer to harpoon (harpoon)"},
+                {"bind": "\\ + hp", "about": "go to previous buffer (harpoon)"},
+                {"bind": "\\ + hn", "about": "go to next buffer (harpoon)"},
+                {"bind": "tab + l, h", "about": "bufferline next and previous tab"},
+                {"bind": "tab + l, h", "about": "bufferline move tab left and right"},
+                {"bind": "\\ + bd", "about": "delete current buffer"},
+                {"bind": "mm, mc", "about": "make / clear a bookmark (bookmarks)"},
+                {"bind": "mn, mp", "about": "next / previous bookmark (bookmarks)"},
+                {"bind": "mm, mc", "about": "make / clear a bookmark (bookmarks)"},
+                {"bind": "ml", "about": "list all bookmarks (bookmarks)"},
+                {"bind": "mi", "about": "edit icon (bookmarks)"},
+                {"bind": "t, w, f, n", "about": "icons: task, warning, function, noodles (bookmarks)"}
+            ]
+        }],[{
+            "title": "Tmux",
+            "rel_size": 1, 
+            "shrots": [
+                {"bind": "CTRL + q", "about": "Split horizontal"},
+                {"bind": "CTRL + w", "about": "Split vertical"},
+                {"bind": "ALT + ARROW", "about": "Move within panes"},
+                {"bind": "ALT + f + SHIFT + ARROW", "about": "Move panes"},
+                {"bind": "ALT + f + e", "about": "Exit pane"},
+                {"bind": "ALT + f + f", "about": "Find in pane"},
+                {"bind": "ALT + f + [", "about": "Enter copy mode"},
+                {"bind": "ALT + f + z", "about": "Focus on pane"},
+                {"bind": "ALT + f + q", "about": "Pick pane"},
+                {"bind": "ALT + f + c", "about": "New window"},
+                {"bind": "ALT + f + 1-9", "about": "Switch window"},
+                {"bind": "ALT + f + &", "about": "Kill a window"},
+                {"bind": "ALT + f + w", "about": "Preview windows"}
+            ]
+        }]
+    ]
+}
