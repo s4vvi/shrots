@@ -34,7 +34,7 @@
             ]
         },{
             "title": "I3",
-            "rel_size": 0.4, 
+            "rel_size": 0.3, 
             "shrots": [
                 {"bind": "WIN + d", "about": "Open Drun"},
                 {"bind": "WIN + D", "about": "Open run"},
@@ -47,13 +47,21 @@
             ]
         },{
             "title": "Ranger",
-            "rel_size": 0.2, 
+            "rel_size": 0.15, 
             "shrots": [
                 {"bind": "CTRL + d", "about": "Drag & Drop"},
                 {"bind": "V", "about": "Enter visual mode (Selects all files)"},
                 {"bind": "uV", "about": "Unselects a file (Visual mode)"}
             ]
-        }],[{
+        },{
+            "title": "ZSH",
+            "rel_size": 0.15, 
+            "shrots": [
+                {"bind": "CTRL + t", "about": "FZF search files."},
+                {"bind": "CTRL + r", "about": "FZF search history."}
+            ]
+        }
+        ],[{
             "title": "Neovim",
             "rel_size": 0.4, 
             "shrots": [
